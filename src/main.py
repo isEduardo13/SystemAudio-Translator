@@ -5,6 +5,8 @@ from engine.audio_queue import enqueue_audio, dequeue_audio, enqueue_text, deque
 from engine.transcriber import TranslatorEngine
 from engine.transcriber import TranscriberEngine
 from ui_overlay import TranslationOverlay
+from tray_handler import TrayIcon
+
 stop_event = threading.Event()
 
 def capture_loop(mic):
@@ -60,7 +62,12 @@ def translate_loop(translator, overlay):
             if result.strip():
                 overlay.update_text(result)
             buffer = ""
+def on_quit():
+    stop_event.set()
+    overlay.root.after(0, overlay.root.destroy)  
+    
 def main():
+    global overlay
     overlay = TranslationOverlay()
     transcriber = TranscriberEngine()
     translator = TranslatorEngine()
@@ -69,12 +76,14 @@ def main():
         threads = [
             threading.Thread(target=capture_loop,   args=(mic,),                   daemon=True),
             threading.Thread(target=whisper_loop,   args=(transcriber,),            daemon=True),
-            threading.Thread(target=translate_loop, args=(translator, overlay),     daemon=True), 
+            threading.Thread(target=translate_loop, args=(translator, overlay),     daemon=True),
+            threading.Thread(target=TrayIcon            (overlay,   on_quit).run,     daemon=True), 
         ]
         for t in threads:
             t.start()
 
         overlay.run()
+        
         stop_event.set() 
 
 
