@@ -2,13 +2,13 @@ import soundcard as sc
 import numpy as np
 
 SAMPLERATE = 16000
-FRAME_DURATION = 0.05        # Analyze in 50-millisecond frames
+FRAME_DURATION = 0.03        # Analyze in 50-millisecond frames
 FRAME_SIZE = int(SAMPLERATE * FRAME_DURATION)  # 800 samples por frame
 
-SILENCE_THRESHOLD = 0.01     # RMS min of 0.01 for silence
-SILENCE_FRAMES = 8           # Consecutive silent frames to be cut (~400ms)
-MAX_DURATION = 7           # Max of 7 seconds per chunk to avoid huge buffers
-MIN_DURATION = 0.5           # Min of 0.5 seconds to avoid too short chunks
+SILENCE_THRESHOLD = 0.04    # RMS min of 0.01 for silence
+SILENCE_FRAMES = 14           # Consecutive silent frames to be cut (~400ms)
+MAX_DURATION = 5          # Max of 7 seconds per chunk to avoid huge buffers
+MIN_DURATION = 0.3         # Min of 0.5 seconds to avoid too short chunks
 
 
 def get_system_audio_stream(samplerate=SAMPLERATE, channels=1):

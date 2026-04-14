@@ -30,18 +30,36 @@ def whisper_loop(transcriber):
         chunk = dequeue_audio(timeout=1)
         if chunk is None:
             continue
+   
+     
         text = transcriber.transcribe(chunk)
+     
+    
         if text.strip():
             enqueue_text(text)
 
 def translate_loop(translator, overlay):
+    buffer = ""
     while not stop_event.is_set():
-        text = dequeue_text(timeout=1)
+        text = dequeue_text(timeout=0.3)
+        
         if text is None:
+            
+            if buffer.strip():
+                result = translator.translate(buffer.strip())
+                if result.strip():
+                    overlay.update_text(result)
+                buffer = ""
             continue
-        result = translator.translate(text)
-        if result.strip():
-            overlay.update_text(result)
+        
+        buffer += " " + text  
+        
+       
+        if any(buffer.rstrip().endswith(p) for p in [".", "?", "!", "..."]):
+            result = translator.translate(buffer.strip())
+            if result.strip():
+                overlay.update_text(result)
+            buffer = ""
 def main():
     overlay = TranslationOverlay()
     transcriber = TranscriberEngine()
